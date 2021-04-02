@@ -62,6 +62,17 @@ class ChatUser {
     );
   }
 
+  sendMemberList() {
+    const memberNameList = [...this.room.members].map((m) => m.name);
+    const memberString = memberNameList.join(", ");
+    this.send(
+      JSON.stringify({
+        type: "note",
+        text: `In room: ${memberString}`,
+      })
+    );
+  }
+
   /** Handle messages from client:
    *
    * - {type: "join", name: username} : join
@@ -74,6 +85,7 @@ class ChatUser {
     if (msg.type === "join") this.handleJoin(msg.name);
     else if (msg.type === "chat") this.handleChat(msg.text);
     else if (msg.type === "joke") this.handleJoke();
+    else if (msg.type === "members") this.sendMemberList();
     else throw new Error(`bad message: ${msg.type}`);
   }
 

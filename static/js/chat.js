@@ -52,11 +52,14 @@ $("form").submit(function (evt) {
   evt.preventDefault();
 
   let data;
+  const text = $("#m").val();
 
-  if ($("#m").val() === "/joke") {
+  if (text === "/joke") {
     data = { type: "joke" };
+  } else if (text === "/members") {
+    data = { type: "members" };
   } else {
-    data = { type: "chat", text: $("#m").val() };
+    data = { type: "chat", text };
   }
 
   ws.send(JSON.stringify(data));
