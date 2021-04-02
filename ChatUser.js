@@ -29,10 +29,12 @@ class ChatUser {
     }
   }
 
-  /** handle joining: add to room members, announce join */
+  /** handle joining: replace spaces in name with dashes,
+   * add to room members, announce join */
 
   handleJoin(name) {
-    this.name = name;
+    const validName = name.split(" ").join("-");
+    this.name = validName;
     this.room.join(this);
     this.room.broadcast({
       type: "note",
