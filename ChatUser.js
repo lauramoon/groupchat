@@ -1,7 +1,10 @@
 /** Functionality related to chatting. */
 
 // Room is an abstraction of a chat channel
-const Room = require('./Room');
+const Room = require("./Room");
+
+// Get joke if requested
+const getJoke = require("./jokes");
 
 /** ChatUser is a individual connection from client -> server to chat. */
 
@@ -32,8 +35,8 @@ class ChatUser {
     this.name = name;
     this.room.join(this);
     this.room.broadcast({
-      type: 'note',
-      text: `${this.name} joined "${this.room.name}".`
+      type: "note",
+      text: `${this.name} joined "${this.room.name}".`,
     });
   }
 
@@ -42,9 +45,21 @@ class ChatUser {
   handleChat(text) {
     this.room.broadcast({
       name: this.name,
-      type: 'chat',
-      text: text
+      type: "chat",
+      text: text,
     });
+  }
+
+  /** handle joke request */
+
+  handleJoke() {
+    this.send(
+      JSON.stringify({
+        name: "Server",
+        type: "chat",
+        text: getJoke(),
+      })
+    );
   }
 
   /** Handle messages from client:
@@ -56,8 +71,9 @@ class ChatUser {
   handleMessage(jsonData) {
     let msg = JSON.parse(jsonData);
 
-    if (msg.type === 'join') this.handleJoin(msg.name);
-    else if (msg.type === 'chat') this.handleChat(msg.text);
+    if (msg.type === "join") this.handleJoin(msg.name);
+    else if (msg.type === "chat") this.handleChat(msg.text);
+    else if (msg.type === "joke") this.handleJoke();
     else throw new Error(`bad message: ${msg.type}`);
   }
 
@@ -66,8 +82,8 @@ class ChatUser {
   handleClose() {
     this.room.leave(this);
     this.room.broadcast({
-      type: 'note',
-      text: `${this.name} left ${this.room.name}.`
+      type: "note",
+      text: `${this.name} left ${this.room.name}.`,
     });
   }
 }
