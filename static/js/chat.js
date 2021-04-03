@@ -58,6 +58,10 @@ $("form").submit(function (evt) {
     data = { type: "joke" };
   } else if (text === "/members") {
     data = { type: "members" };
+  } else if (text.split(" ")[0] === "/priv") {
+    const wordList = text.split(" ");
+    const message = wordList.slice(2, wordList.length).join(" ");
+    data = { type: "priv", member: wordList[1], text: message };
   } else {
     data = { type: "chat", text };
   }

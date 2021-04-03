@@ -64,6 +64,7 @@ class ChatUser {
     );
   }
 
+  /** send list of room members */
   sendMemberList() {
     const memberNameList = [...this.room.members].map((m) => m.name);
     const memberString = memberNameList.join(", ");
@@ -75,10 +76,34 @@ class ChatUser {
     );
   }
 
+  /** message shows for sender and recipient only
+   *  Note: if more than one room member with same name, can't specify who gets message
+   */
+
+  sendPrivateMsg(recipientName, text) {
+    try {
+      const recipient = [...this.room.members].filter(
+        (m) => m.name === recipientName
+      )[0];
+      const data = JSON.stringify({
+        name: this.name,
+        type: "chat",
+        text: `(to ${recipientName} only): ${text}`,
+      });
+      recipient.send(data);
+      this.send(data);
+    } catch {
+      // if recipient doesn't exist or other error, do nothing
+    }
+  }
+
   /** Handle messages from client:
    *
    * - {type: "join", name: username} : join
    * - {type: "chat", text: msg }     : chat
+   * - {type: "joke"} : send joke
+   * - {type: "members"} : send member list
+   * - {type: "priv"} : send private message
    */
 
   handleMessage(jsonData) {
@@ -88,6 +113,7 @@ class ChatUser {
     else if (msg.type === "chat") this.handleChat(msg.text);
     else if (msg.type === "joke") this.handleJoke();
     else if (msg.type === "members") this.sendMemberList();
+    else if (msg.type === "priv") this.sendPrivateMsg(msg.member, msg.text);
     else throw new Error(`bad message: ${msg.type}`);
   }
 
