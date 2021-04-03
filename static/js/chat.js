@@ -46,24 +46,30 @@ ws.onclose = function (evt) {
   console.log("close", evt);
 };
 
-/** send message when button pushed. */
+/** send message or other command when button pushed. */
 
 $("form").submit(function (evt) {
   evt.preventDefault();
 
   let data;
   const text = $("#m").val();
+  const wordList = text.split(" ");
 
-  if (text === "/joke") {
-    data = { type: "joke" };
-  } else if (text === "/members") {
-    data = { type: "members" };
-  } else if (text.split(" ")[0] === "/priv") {
-    const wordList = text.split(" ");
-    const message = wordList.slice(2, wordList.length).join(" ");
-    data = { type: "priv", member: wordList[1], text: message };
+  if (text[0] === "/") {
+    const command = text.split(" ")[0];
+    data = { type: command.slice(1, command.length) };
   } else {
     data = { type: "chat", text };
+  }
+
+  if (data.type === "priv") {
+    const message = wordList.slice(2, wordList.length).join(" ");
+    data.member = wordList[1];
+    data.text = message;
+  }
+
+  if (data.type === "name") {
+    data.newName = wordList.slice(1, wordList.length).join(" ");
   }
 
   ws.send(JSON.stringify(data));

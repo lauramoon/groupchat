@@ -97,6 +97,15 @@ class ChatUser {
     }
   }
 
+  changeName(newName) {
+    const oldName = this.name;
+    this.name = newName.split(" ").join("-");
+    this.room.broadcast({
+      type: "note",
+      text: `${oldName} changed name to "${newName}".`,
+    });
+  }
+
   /** Handle messages from client:
    *
    * - {type: "join", name: username} : join
@@ -104,6 +113,7 @@ class ChatUser {
    * - {type: "joke"} : send joke
    * - {type: "members"} : send member list
    * - {type: "priv"} : send private message
+   * - {type: "name"} : change name
    */
 
   handleMessage(jsonData) {
@@ -114,6 +124,7 @@ class ChatUser {
     else if (msg.type === "joke") this.handleJoke();
     else if (msg.type === "members") this.sendMemberList();
     else if (msg.type === "priv") this.sendPrivateMsg(msg.member, msg.text);
+    else if (msg.type === "name") this.changeName(msg.newName);
     else throw new Error(`bad message: ${msg.type}`);
   }
 
